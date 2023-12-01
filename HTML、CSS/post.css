@@ -1,0 +1,43 @@
+/* body {
+    background: url(camp_frame_12618.jpg);
+    background-size: cover;
+} */
+
+h1 {
+    text-align: center;
+    color: green;
+    font-size: 48px;
+}
+h2 {
+    font-size: 24p;
+}
+
+.fieldset{
+    width: 400px;
+    background-color: #FFFFE0;
+}
+
+
+#field,#name {
+    width: 400px;
+}
+
+#text {
+    width: 400px;
+    height: 100px;
+}
+
+#send {
+    background-color: #32CD32;
+    width: 400px;
+}
+
+.box {
+    display: flex;
+    justify-content: center;
+}
+#output li {
+    background: #FFFFE0;
+    list-style: none;
+  }
+

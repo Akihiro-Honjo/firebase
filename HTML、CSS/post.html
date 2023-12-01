@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="post.css">
+    <title>投稿ページ</title>
+</head>
+<body>
+  <h1>キャンポスト</h1>
+  <div class="box">
+  <div class="form">
+    <form>
+      <fieldset class="fieldset">
+          <legend>投稿画面</legend>
+          <div>
+            名前 <input type="text" id="name">
+          </div>
+          <div>
+            キャンプ場名 <input type="text" id="field">
+          </div>
+          <div>
+            行った日 <input type="date" value="2023-11-30" id="date">
+          </div>
+          <div>
+            キャンプスタイル <select name=”style”>
+              <option id="style">ソロ</option>
+              <option id="style">家族</option>
+              <option id="style">友人</option>
+              <option id="style">恋人</option>
+              <option id="style">その他</option>
+            </select>
+          </div>
+          <div>
+          <input type="textarea" id="text">
+          </div>
+          <div>
+            <button type="button" id="send">ポスト</button>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+
+
+    
+
+
+      <!-- 投稿表示場所 -->
+      <div class="post-filed">
+        <h2>みんなの投稿</h2>
+      <div class="post-area">
+        <ul id="output"></ul>
+      </div>
+      </div>
+    </div>
+
+
+
+
+
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+      // 日時をいい感じの形式にする関数
+      function convertTimestampToDatetime(timestamp) {
+        const _d = timestamp ? new Date(timestamp * 1000) : new Date();
+        const Y = _d.getFullYear();
+        const m = (_d.getMonth() + 1).toString().padStart(2, '0');
+        const d = _d.getDate().toString().padStart(2, '0');
+        const H = _d.getHours().toString().padStart(2, '0');
+        const i = _d.getMinutes().toString().padStart(2, '0');
+        const s = _d.getSeconds().toString().padStart(2, '0');
+        return `${Y}/${m}/${d} ${H}:${i}:${s}`;
+      }
+    </script>
+    <!-- 以下にfirebaseのコードを貼り付けよう -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+      import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  orderBy,
+  onSnapshot,
+} from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+    
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyBaOp3a40GrbFxFp9M9WZ4MeT-UlsOyWow",
+        authDomain: "campost-c2d38.firebaseapp.com",
+        projectId: "campost-c2d38",
+        storageBucket: "campost-c2d38.appspot.com",
+        messagingSenderId: "617059248641",
+        appId: "1:617059248641:web:a7833d630240bb4846ae00"
+      };
+    
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+
+      $("#send").on("click", function(){
+      const data = {
+        name: $("#name").val(),
+        filed: $("#field").val(),
+        date: $("#date").val(),
+        member: $("#style").val(),
+        text: $("#text").val(),
+        time: serverTimestamp(),
+      };
+      addDoc(collection(db, "campost"), data);
+      $("#name").val("");
+      $("#field").val("");
+      $("#date").val("");
+      $("#style").val("");
+      $("#text").val("");
+    });
+
+
+    // データ取得処理
+   const q = query(collection(db, "campost"), orderBy("time", "desc"));
+
+onSnapshot(q, (querySnapshot) => {
+console.log(querySnapshot.docs);
+
+const documents = [];
+querySnapshot.docs.forEach(function (doc) {
+const document = {
+id: doc.id,
+data: doc.data(),
+};
+documents.push(document);
+});
+
+console.log(documents);
+
+const htmlElements = [];
+documents.forEach(function (document) {
+htmlElements.push(`
+<li id="${document.id}">
+  <p>名前：${document.data.name}</p>
+  <p>キャンプ場：${document.data.filed}</p>
+  <p>行った日：${document.data.date}</p>
+  <p>キャンプスタイル：${document.data.member}</p>
+  <p>感想：${document.data.text}</p>
+  <p>${convertTimestampToDatetime(document.data.time.seconds)}</p>
+</li>
+`);
+});
+
+$("#output").html(htmlElements);
+
+});
+
+    </script>
+
+</body>
+</html>
